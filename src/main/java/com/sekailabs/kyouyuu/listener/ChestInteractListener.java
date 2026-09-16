@@ -9,6 +9,7 @@ import com.sekailabs.kyouyuu.service.ChestService;
 import com.sekailabs.kyouyuu.service.LinkSessionManager;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -21,8 +22,17 @@ import org.bukkit.inventory.Inventory;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class ChestInteractListener implements Listener {
+
+    private static final Map<UUID, Block> openChestBlocks = new ConcurrentHashMap<>();
+
+    public static Block getAndRemoveOpenBlock(UUID playerUuid) {
+        return openChestBlocks.remove(playerUuid);
+    }
 
     private final ChestService chestService;
     private final ChannelService channelService;
@@ -103,6 +113,22 @@ public class ChestInteractListener implements Listener {
         Channel channel = channelOpt.get();
         Inventory inv = inventoryManager.getOrCreateInventory(channel);
         player.openInventory(inv);
+        openChestBlocks.put(player.getUniqueId(), block);
+        org.bukkit.block.BlockState state = block.getState();
+        if (state instanceof org.bukkit.block.Lidded lidded) {
+            try {
+                lidded.open();
+            } catch (Throwable ignored) {
+            }
+        }
+        if (block.getLocation() != null && block.getWorld() != null) {
+            Location loc = block.getLocation().clone().add(0.5, 0.5, 0.5);
+            if (block.getType() == org.bukkit.Material.BARREL) {
+                block.getWorld().playSound(loc, org.bukkit.Sound.BLOCK_BARREL_OPEN, 0.5f, 1.0f);
+            } else {
+                block.getWorld().playSound(loc, org.bukkit.Sound.BLOCK_CHEST_OPEN, 0.5f, 1.0f);
+            }
+        }
     }
 
     private void handleLinkSessionClick(Player player, String channelId, Block block) {

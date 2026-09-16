@@ -191,17 +191,21 @@ public class KyouyuuCommand implements BasicCommand {
             player.sendMessage(pluginConfig.format("<red>You do not have permission to link chests.</red>"));
             return;
         }
-
-        if (args.length < 1) {
-            player.sendMessage(pluginConfig.format("<yellow>Usage: /kyo link <channel></yellow>"));
-            return;
-        }
-
-        String channelId = args[0].toLowerCase().trim();
-        Optional<Channel> chOpt = channelService.getChannel(channelId);
-        if (chOpt.isEmpty()) {
-            player.sendMessage(pluginConfig.format("<red>Channel '" + channelId + "' does not exist. Create it first with /kyo channel create " + channelId + ".</red>"));
-            return;
+        String channelId;
+        if (args.length < 1 || args[0].trim().isEmpty()) {
+            if (channelService.getChannel("global").isPresent()) {
+                channelId = "global";
+            } else {
+                player.sendMessage(pluginConfig.format("<yellow>Usage: /kyo link <channel></yellow>"));
+                return;
+            }
+        } else {
+            channelId = args[0].toLowerCase().trim();
+            Optional<Channel> chOpt = channelService.getChannel(channelId);
+            if (chOpt.isEmpty()) {
+                player.sendMessage(pluginConfig.format("<red>Channel '" + channelId + "' does not exist. Create it first with /kyo channel create " + channelId + ".</red>"));
+                return;
+            }
         }
 
         sessionManager.startLinkSession(player.getUniqueId(), channelId);

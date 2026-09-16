@@ -394,15 +394,30 @@ class KyouyuuCommandTest {
     }
 
     @Test
-    void testExecuteLinkMissingArg() {
+    void testExecuteLinkNoArgsDefaultsToGlobalWhenPresent() {
         when(sourceStack.getSender()).thenReturn(player);
         when(authService.canLinkChests(player)).thenReturn(true);
+        Channel globalChannel = Channel.create("global", "Global", 54);
+        when(channelService.getChannel("global")).thenReturn(Optional.of(globalChannel));
 
         command.execute(sourceStack, new String[]{"link"});
 
+        verify(sessionManager).startLinkSession(player.getUniqueId(), "global");
         verify(player).sendMessage(any(Component.class));
-        verify(sessionManager, never()).startLinkSession(any(), any());
     }
+
+    @Test
+    void testExecuteLinkNoArgsFailsWhenGlobalChannelDeleted() {
+        when(sourceStack.getSender()).thenReturn(player);
+        when(authService.canLinkChests(player)).thenReturn(true);
+        when(channelService.getChannel("global")).thenReturn(Optional.empty());
+
+        command.execute(sourceStack, new String[]{"link"});
+
+        verify(sessionManager, never()).startLinkSession(any(), any());
+        verify(player).sendMessage(any(Component.class));
+    }
+
 
     @Test
     void testExecuteLinkNonExistentChannel() {

@@ -102,7 +102,7 @@ hopper:
 ./gradlew clean build
 ```
 
-The compiled jar will be at `build/libs/kyouyuu-1.2.1.jar`.
+The compiled jar will be at `build/libs/kyouyuu-1.3.0.jar`.
 
 ## License
 

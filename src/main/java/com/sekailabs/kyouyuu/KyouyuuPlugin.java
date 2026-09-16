@@ -73,6 +73,7 @@ public class KyouyuuPlugin extends JavaPlugin {
         inventoryManager = new SharedInventoryManager(channelRepository, itemSerializer, getLogger(), getServer());
         channelService = new ChannelService(channelRepository, chestRepository, inventoryManager, itemSerializer);
         chestService = new ChestService(chestRepository, getLogger());
+        ensureDefaultChannel();
         linkSessionManager = new LinkSessionManager(Duration.ofSeconds(pluginConfig.getLinkSessionTimeoutSeconds()));
         chunkKeepAliveService = new ChunkKeepAliveService(this, chestService, pluginConfig, getLogger(), getServer());
         chunkKeepAliveService.syncAllTickets();
@@ -172,6 +173,17 @@ public class KyouyuuPlugin extends JavaPlugin {
             chunkKeepAliveService.syncAllTickets();
         }
         getLogger().info("Configuration reloaded.");
+    }
+
+    private void ensureDefaultChannel() {
+        try {
+            if (channelService.getChannel("global").isEmpty()) {
+                channelService.createChannel("global", "Global", 54);
+                getLogger().info("Created default channel 'global'.");
+            }
+        } catch (Throwable t) {
+            getLogger().log(Level.WARNING, "Failed to ensure default channel 'global'", t);
+        }
     }
 
     public ChannelService getChannelService() {

@@ -134,6 +134,24 @@ public class ChestInventoryListener implements Listener {
             if (inventory.getViewers().size() <= 1 && inventoryManager.isDirty(channelId)) {
                 inventoryManager.flushChannel(channelId);
             }
+            if (event.getPlayer() instanceof Player player) {
+                org.bukkit.block.Block block = ChestInteractListener.getAndRemoveOpenBlock(player.getUniqueId());
+                if (block != null) {
+                    org.bukkit.block.BlockState state = block.getState();
+                    if (state instanceof org.bukkit.block.Lidded lidded) {
+                        try {
+                            lidded.close();
+                        } catch (Throwable ignored) {
+                        }
+                    }
+                    org.bukkit.Location loc = block.getLocation().clone().add(0.5, 0.5, 0.5);
+                    if (block.getType() == org.bukkit.Material.BARREL) {
+                        block.getWorld().playSound(loc, org.bukkit.Sound.BLOCK_BARREL_CLOSE, 0.5f, 1.0f);
+                    } else {
+                        block.getWorld().playSound(loc, org.bukkit.Sound.BLOCK_CHEST_CLOSE, 0.5f, 1.0f);
+                    }
+                }
+            }
         }
     }
 }
