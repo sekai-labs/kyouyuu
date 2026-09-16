@@ -8,6 +8,7 @@ import com.sekailabs.kyouyuu.service.ChannelService;
 import com.sekailabs.kyouyuu.service.ChestService;
 import com.sekailabs.kyouyuu.service.LinkSessionManager;
 import net.kyori.adventure.text.Component;
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.Action;
@@ -358,5 +359,21 @@ class ChestInteractListenerTest {
         verify(event).setCancelled(true);
         verify(inventoryManager).getOrCreateInventory(channel);
         verify(player).openInventory(inventory);
+    }
+
+    @Test
+    void testSneakWithBlockDoesNotCancelOrOpenChest() {
+        when(chestService.isLinkableContainer(block)).thenReturn(true);
+        when(sessionManager.getSession(playerUuid)).thenReturn(Optional.empty());
+
+        LinkedChest linked = new LinkedChest("vault", "world", null, 10, 64, 20);
+        when(chestService.getLinkedChest(block)).thenReturn(Optional.of(linked));
+
+        when(player.isSneaking()).thenReturn(true);
+        when(event.isBlockInHand()).thenReturn(true);
+        listener.onPlayerInteract(event);
+
+        verify(event, never()).setCancelled(true);
+        verify(player, never()).openInventory(any(Inventory.class));
     }
 }

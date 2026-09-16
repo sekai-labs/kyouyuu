@@ -77,11 +77,14 @@ public class ChestInteractListener implements Listener {
 
         Optional<LinkedChest> linkedOpt = chestService.getLinkedChest(block);
         if (linkedOpt.isEmpty()) {
-            return; 
+            return;
+        }
+
+        if (player.isSneaking() && event.isBlockInHand()) {
+            return;
         }
 
         event.setCancelled(true);
-
         LinkedChest linkedChest = linkedOpt.get();
         String channelId = linkedChest.channelId();
 
