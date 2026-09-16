@@ -2,7 +2,7 @@
 
 Paper plugin for linking physical chests across your server to shared inventory channels. Opening any chest linked to a channel shows the same inventory.
 
-Supports Paper 1.21+ (Java 21+).
+Supports Paper 1.21+ / 26.1+ (Java 21+).
 
 ## Features
 
@@ -102,7 +102,7 @@ hopper:
 ./gradlew clean build
 ```
 
-The compiled jar will be at `build/libs/kyouyuu-1.3.0.jar`.
+The compiled jar will be at `build/libs/kyouyuu-1.3.1.jar`.
 
 ## License
 

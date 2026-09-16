@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "com.sekailabs.kyouyuu"
-version = "1.3.0"
+version = "1.3.1"
 
 repositories {
     mavenCentral()
@@ -67,7 +67,7 @@ modrinth {
     versionNumber.set(project.version.toString())
     versionType.set("release")
     uploadFile.set(tasks.jar)
-    gameVersions.addAll(listOf("1.21", "1.21.1", "1.21.2", "1.21.3", "1.21.4"))
+    gameVersions.addAll(listOf("1.21", "1.21.1", "1.21.2", "1.21.3", "1.21.4", "26.1", "26.1.1", "26.1.2"))
     loaders.addAll(listOf("paper", "purpur"))
     syncBodyFrom.set(rootProject.file("README.md").readText())
 }
