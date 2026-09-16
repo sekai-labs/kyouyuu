@@ -1,0 +1,32 @@
+name: Kyouyuu
+version: '1.0.0-SNAPSHOT'
+main: com.sekailabs.kyouyuu.KyouyuuPlugin
+api-version: '1.21'
+prefix: Kyouyuu
+authors:
+  - SekaiLabs
+description: Shared inventory channels linked across physical chests.
+softdepend:
+  - LuckPerms
+libraries:
+  - org.xerial:sqlite-jdbc:3.49.1.0
+  - org.postgresql:postgresql:42.7.5
+  - com.mysql:mysql-connector-j:9.2.0
+  - com.zaxxer:HikariCP:6.2.1
+
+permissions:
+  kyouyuu.admin:
+    description: Full administrative access to all Kyouyuu features and channels.
+    default: op
+  kyouyuu.use:
+    description: Allows interacting with linked chests and shared inventories.
+    default: true
+  kyouyuu.channel.manage:
+    description: Allows creating, resizing, and deleting channels.
+    default: op
+  kyouyuu.chest.link:
+    description: Allows linking physical chests to channels.
+    default: op
+  kyouyuu.chest.unlink:
+    description: Allows unlinking physical chests from channels and breaking linked chests.
+    default: op

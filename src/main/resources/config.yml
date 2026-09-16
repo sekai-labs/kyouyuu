@@ -1,0 +1,41 @@
+# ==========================================
+# Kyouyuu (共有) Configuration
+# ==========================================
+
+storage:
+  # Database type: SQLITE, MYSQL, or POSTGRESQL
+  type: SQLITE
+
+  # Interval in seconds between periodic background inventory flushes
+  autosave-interval-seconds: 30
+
+  # MySQL settings (used if type is MYSQL)
+  mysql:
+    host: "localhost"
+    port: 3306
+    database: "kyouyuu"
+    username: "root"
+    password: ""
+    ssl: false
+
+  # PostgreSQL settings (used if type is POSTGRESQL)
+  postgresql:
+    host: "localhost"
+    port: 5432
+    database: "kyouyuu"
+    username: "postgres"
+    password: ""
+    ssl: false
+linking:
+  # Duration in seconds before an interactive link/unlink session expires
+  session-timeout-seconds: 30
+
+messages:
+  prefix: "<gradient:#4A90E2:#50E3C2><bold>[Kyouyuu]</bold></gradient> "
+  no-permission: "<red>You do not have permission to do that.</red>"
+  channel-created: "<green>Channel <yellow><id></yellow> created successfully with <slots> slots.</green>"
+  channel-deleted: "<green>Channel <yellow><id></yellow> deleted successfully.</green>"
+  chest-linked: "<green>Chest linked to channel <yellow><id></yellow>.</green>"
+  chest-unlinked: "<green>Chest unlinked from channel.</green>"
+  link-mode-active: "<green>Linking mode active for channel <yellow><id></yellow>. Right-click any chest or barrel to link (30s timeout).</green>"
+  unlink-mode-active: "<green>Unlink mode active. Right-click any linked chest or barrel to unlink (30s timeout).</green>"
