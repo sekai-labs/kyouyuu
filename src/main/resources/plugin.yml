@@ -1,5 +1,5 @@
 name: Kyouyuu
-version: '1.0.0-SNAPSHOT'
+version: '1.1.0'
 main: com.sekailabs.kyouyuu.KyouyuuPlugin
 api-version: '1.21'
 prefix: Kyouyuu

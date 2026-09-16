@@ -271,7 +271,54 @@ public class KyouyuuCommand implements BasicCommand {
     }
 
     private void sendHelp(CommandSender sender) {
-        sender.sendMessage(pluginConfig.rawFormat("<gradient:#4A90E2:#50E3C2><bold>=== Kyouyuu Commands ===</bold></gradient>"));
+        if (sender instanceof Player player) {
+            try {
+                net.kyori.adventure.inventory.Book advBook = net.kyori.adventure.inventory.Book.book(
+                        Component.text("Kyouyuu Guide", NamedTextColor.AQUA),
+                        Component.text("Kyouyuu", NamedTextColor.DARK_AQUA),
+                        Component.text("=== Kyouyuu Guide ===\n\n", NamedTextColor.AQUA)
+                                .append(Component.text("Kyouyuu links physical chests across the server to shared inventory channels.\n\n", NamedTextColor.BLACK))
+                                .append(Component.text("Quick Steps:\n", NamedTextColor.DARK_BLUE))
+                                .append(Component.text("1. Create channel:\n/kyo channel create <name> [size]\n\n", NamedTextColor.BLACK))
+                                .append(Component.text("2. Link chest:\n/kyo link <channel>\nRight-click any chest.", NamedTextColor.BLACK)),
+                        Component.text("=== Commands ===\n\n", NamedTextColor.AQUA)
+                                .append(Component.text("/kyo link <ch>\n", NamedTextColor.DARK_BLUE))
+                                .append(Component.text("Link clicked chest\n\n", NamedTextColor.BLACK))
+                                .append(Component.text("/kyo unlink\n", NamedTextColor.DARK_BLUE))
+                                .append(Component.text("Unlink chest\n\n", NamedTextColor.BLACK))
+                                .append(Component.text("/kyo info\n", NamedTextColor.DARK_BLUE))
+                                .append(Component.text("Inspect chest\n\n", NamedTextColor.BLACK))
+                                .append(Component.text("/kyo reload\n", NamedTextColor.DARK_BLUE))
+                                .append(Component.text("Reload plugin config", NamedTextColor.BLACK)),
+                        Component.text("=== Channels ===\n\n", NamedTextColor.AQUA)
+                                .append(Component.text("/kyo channel create <name> [size]\n\n", NamedTextColor.DARK_BLUE))
+                                .append(Component.text("/kyo channel delete <name> [--force]\n\n", NamedTextColor.DARK_BLUE))
+                                .append(Component.text("/kyo channel resize <name> <size>\n\n", NamedTextColor.DARK_BLUE))
+                                .append(Component.text("/kyo channel list\n\n", NamedTextColor.DARK_BLUE))
+                                .append(Component.text("/kyo channel info <name>", NamedTextColor.DARK_BLUE))
+                );
+                player.openBook(advBook);
+                try {
+                    org.bukkit.inventory.ItemStack book = new org.bukkit.inventory.ItemStack(org.bukkit.Material.WRITTEN_BOOK);
+                    if (book.getItemMeta() instanceof org.bukkit.inventory.meta.BookMeta meta) {
+                        meta.title(Component.text("Kyouyuu Guide", NamedTextColor.AQUA));
+                        meta.author(Component.text("Kyouyuu", NamedTextColor.DARK_AQUA));
+                        meta.pages(advBook.pages());
+                        book.setItemMeta(meta);
+                    }
+                    var leftover = player.getInventory().addItem(book);
+                    if (!leftover.isEmpty() && player.getWorld() != null) {
+                        player.getWorld().dropItemNaturally(player.getLocation(), book);
+                    }
+                } catch (Throwable ignored) {
+                }
+                player.sendMessage(pluginConfig.format("<green>You received the Kyouyuu guide book.</green>"));
+                return;
+            } catch (Throwable ignored) {
+            }
+        }
+
+        sender.sendMessage(pluginConfig.rawFormat("<aqua><bold>=== Kyouyuu Commands ===</bold></aqua>"));
         sender.sendMessage(pluginConfig.rawFormat("<yellow>/kyo link <channel></yellow> <gray>- Enter link mode for a channel</gray>"));
         sender.sendMessage(pluginConfig.rawFormat("<yellow>/kyo unlink</yellow> <gray>- Unlink targeted or clicked chest</gray>"));
         sender.sendMessage(pluginConfig.rawFormat("<yellow>/kyo info</yellow> <gray>- Inspect link status of targeted chest</gray>"));
@@ -312,11 +359,28 @@ public class KyouyuuCommand implements BasicCommand {
                 }
                 return completions;
             }
-            if (args.length == 4 && args[1].equalsIgnoreCase("resize")) {
-                return List.of("9", "18", "27", "36", "45", "54");
-            }
             if (args.length == 3 && args[1].equalsIgnoreCase("create")) {
-                return List.of("9", "18", "27", "36", "45", "54");
+                if (args[2].isEmpty()) {
+                    return List.of("<name>");
+                }
+                List<String> sizes = List.of("9", "18", "27", "36", "45", "54");
+                return sizes;
+            }
+            if (args.length == 4 && args[1].equalsIgnoreCase("create")) {
+                List<String> sizes = List.of("9", "18", "27", "36", "45", "54");
+                List<String> matches = new ArrayList<>();
+                for (String s : sizes) {
+                    if (s.startsWith(args[3].toLowerCase())) matches.add(s);
+                }
+                return matches;
+            }
+            if (args.length == 4 && args[1].equalsIgnoreCase("resize")) {
+                List<String> sizes = List.of("9", "18", "27", "36", "45", "54");
+                List<String> matches = new ArrayList<>();
+                for (String s : sizes) {
+                    if (s.startsWith(args[3].toLowerCase())) matches.add(s);
+                }
+                return matches;
             }
         } else if (sub.equals("link") && args.length == 2) {
             for (Channel ch : channelService.listChannels()) {

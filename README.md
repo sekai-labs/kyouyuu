@@ -10,7 +10,7 @@ Supports Paper 1.21+ (Java 21+).
 - **Double Chests**: Automatically links both halves of double chests.
 - **Database Support**: Embedded SQLite (default), MySQL, and PostgreSQL via HikariCP.
 - **Permission Control**: Fine-grained permissions per channel (`access`, `deposit`, `withdraw`), with native LuckPerms integration.
-- **Hopper Protection**: Blocks hopper insertion/extraction on linked containers to prevent desync.
+- **Hopper Automation**: Supports hopper insertion and extraction on linked containers synced with shared channels.
 - **Safety Checks**: Channels with items cannot be deleted or downsized without `--force`.
 
 ## Installation
@@ -22,13 +22,10 @@ Supports Paper 1.21+ (Java 21+).
 ## Quick Start
 
 ```bash
-# 1. Create a channel (size: 9, 18, 27, 36, 45, or 54)
 /kyo channel create vault 54
 
-# 2. Enter link mode and right-click a chest
 /kyo link vault
 
-# 3. Link another chest to the same channel
 /kyo link vault
 ```
 
@@ -70,7 +67,6 @@ Alias: `/kyouyuu`
 
 ```yaml
 storage:
-  # SQLITE, MYSQL, or POSTGRESQL
   type: SQLITE
   autosave-interval-seconds: 30
 
@@ -92,6 +88,9 @@ storage:
 
 linking:
   session-timeout-seconds: 30
+
+hopper:
+  enabled: true
 ```
 
 ## Building
@@ -100,7 +99,7 @@ linking:
 ./gradlew clean build
 ```
 
-The compiled jar will be at `build/libs/kyouyuu-1.0.0-SNAPSHOT.jar`.
+The compiled jar will be at `build/libs/kyouyuu-1.1.0.jar`.
 
 ## License
 

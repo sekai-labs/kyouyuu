@@ -86,7 +86,7 @@ public class KyouyuuPlugin extends JavaPlugin {
         pm.registerEvents(new ChestInteractListener(chestService, channelService, inventoryManager, authorizationService, linkSessionManager), this);
         pm.registerEvents(new ChestInventoryListener(inventoryManager, authorizationService), this);
         pm.registerEvents(new BlockProtectionListener(chestService, authorizationService), this);
-        pm.registerEvents(new HopperAutomationListener(chestService), this);
+        pm.registerEvents(new HopperAutomationListener(chestService, channelService, inventoryManager, pluginConfig), this);
 
         KyouyuuCommand kyouyuuCommand = new KyouyuuCommand(
                 channelService,

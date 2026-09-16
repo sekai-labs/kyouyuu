@@ -15,12 +15,14 @@ public class PluginConfig {
     private int autosaveIntervalSeconds;
     private int linkSessionTimeoutSeconds;
     private com.sekailabs.kyouyuu.storage.DatabaseCredentials databaseCredentials;
+    private boolean hopperAutomationEnabled = false;
     private final Map<String, String> messages = new HashMap<>();
 
     public void load(FileConfiguration config) {
-        this.prefix = config.getString("messages.prefix", "<gradient:#4A90E2:#50E3C2><bold>[Kyouyuu]</bold></gradient> ");
+        this.prefix = config.getString("messages.prefix", "<aqua>[Kyouyuu]</aqua> ");
         this.autosaveIntervalSeconds = config.getInt("storage.autosave-interval-seconds", 30);
         this.linkSessionTimeoutSeconds = config.getInt("linking.session-timeout-seconds", 30);
+        this.hopperAutomationEnabled = config.getBoolean("hopper.enabled", true);
 
         String dbTypeStr = config.getString("storage.type", "SQLITE");
         com.sekailabs.kyouyuu.storage.DatabaseType dbType = com.sekailabs.kyouyuu.storage.DatabaseType.fromString(dbTypeStr);
@@ -78,5 +80,9 @@ public class PluginConfig {
 
     public com.sekailabs.kyouyuu.storage.DatabaseCredentials getDatabaseCredentials() {
         return databaseCredentials != null ? databaseCredentials : com.sekailabs.kyouyuu.storage.DatabaseCredentials.sqlite();
+    }
+
+    public boolean isHopperAutomationEnabled() {
+        return hopperAutomationEnabled;
     }
 }

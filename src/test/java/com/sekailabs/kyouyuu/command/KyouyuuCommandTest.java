@@ -13,11 +13,13 @@ import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.StringReader;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -89,6 +91,33 @@ class KyouyuuCommandTest {
         when(sourceStack.getSender()).thenReturn(player);
         command.execute(sourceStack, new String[]{"HeLP"});
         verify(player, atLeastOnce()).sendMessage(any(Component.class));
+    }
+
+    @Test
+    void testExecuteHelpPlayerOpensBook() {
+        when(sourceStack.getSender()).thenReturn(player);
+        org.bukkit.inventory.PlayerInventory inv = mock(org.bukkit.inventory.PlayerInventory.class);
+        when(player.getInventory()).thenReturn(inv);
+        when(inv.addItem(any(ItemStack.class))).thenReturn(new HashMap<>());
+
+        command.execute(sourceStack, new String[]{"help"});
+        verify(player).openBook(any(net.kyori.adventure.inventory.Book.class));
+        verify(player).sendMessage(any(Component.class));
+    }
+
+    @Test
+    void testSuggestChannelCreateNameHint() {
+        Collection<String> result = command.suggest(sourceStack, new String[]{"channel", "create", ""});
+        assertEquals(List.of("<name>"), result);
+    }
+
+    @Test
+    void testSuggestChannelCreateSlotSizesArg4() {
+        Collection<String> result = command.suggest(sourceStack, new String[]{"channel", "create", "test", ""});
+        assertEquals(List.of("9", "18", "27", "36", "45", "54"), result);
+
+        Collection<String> resultFiltered = command.suggest(sourceStack, new String[]{"channel", "create", "test", "5"});
+        assertEquals(List.of("54"), resultFiltered);
     }
 
     @Test
