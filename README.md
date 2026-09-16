@@ -11,6 +11,7 @@ Supports Paper 1.21+ (Java 21+).
 - **Database Support**: Embedded SQLite (default), MySQL, and PostgreSQL via HikariCP.
 - **Permission Control**: Fine-grained permissions per channel (`access`, `deposit`, `withdraw`), with native LuckPerms integration.
 - **Hopper Automation**: Supports hopper insertion and extraction on linked containers synced with shared channels.
+- **Chunk Keep-Alive**: Automatically maintains chunk tickets for linked chest locations so hoppers can transfer items across long distances.
 - **Safety Checks**: Channels with items cannot be deleted or downsized without `--force`.
 
 ## Installation
@@ -86,6 +87,8 @@ storage:
     password: ""
     ssl: false
 
+chunk-loading:
+  enabled: true
 linking:
   session-timeout-seconds: 30
 
@@ -99,7 +102,7 @@ hopper:
 ./gradlew clean build
 ```
 
-The compiled jar will be at `build/libs/kyouyuu-1.1.0.jar`.
+The compiled jar will be at `build/libs/kyouyuu-1.2.0.jar`.
 
 ## License
 

@@ -13,6 +13,7 @@ import com.sekailabs.kyouyuu.listener.ChestInventoryListener;
 import com.sekailabs.kyouyuu.listener.HopperAutomationListener;
 import com.sekailabs.kyouyuu.service.ChannelService;
 import com.sekailabs.kyouyuu.service.ChestService;
+import com.sekailabs.kyouyuu.service.ChunkKeepAliveService;
 import com.sekailabs.kyouyuu.service.LinkSessionManager;
 import com.sekailabs.kyouyuu.storage.ChannelRepository;
 import com.sekailabs.kyouyuu.storage.ChestRepository;
@@ -43,7 +44,7 @@ public class KyouyuuPlugin extends JavaPlugin {
     private ChestService chestService;
     private AuthorizationService authorizationService;
     private LinkSessionManager linkSessionManager;
-
+    private ChunkKeepAliveService chunkKeepAliveService;
     private BukkitTask autosaveTask;
     private BukkitTask sessionPruneTask;
 
@@ -73,6 +74,12 @@ public class KyouyuuPlugin extends JavaPlugin {
         channelService = new ChannelService(channelRepository, chestRepository, inventoryManager, itemSerializer);
         chestService = new ChestService(chestRepository, getLogger());
         linkSessionManager = new LinkSessionManager(Duration.ofSeconds(pluginConfig.getLinkSessionTimeoutSeconds()));
+        chunkKeepAliveService = new ChunkKeepAliveService(this, chestService, pluginConfig, getLogger(), getServer());
+        chunkKeepAliveService.syncAllTickets();
+        chestService.setLinkListeners(
+                lc -> chunkKeepAliveService.addTicketForChest(lc.worldName(), lc.x(), lc.z()),
+                loc -> chunkKeepAliveService.removeTicketIfNoOtherChests(loc.worldName(), loc.x(), loc.z())
+        );
 
         PluginManager pm = getServer().getPluginManager();
         if (pm.isPluginEnabled("LuckPerms")) {
@@ -115,6 +122,12 @@ public class KyouyuuPlugin extends JavaPlugin {
 
         sessionPruneTask = Bukkit.getScheduler().runTaskTimer(this, linkSessionManager::pruneExpiredSessions, 100L, 100L);
 
+        Bukkit.getScheduler().runTaskTimer(this, () -> {
+            if (chunkKeepAliveService != null) {
+                chunkKeepAliveService.syncAllTickets();
+            }
+        }, 600L, 1200L);
+
         long elapsed = System.currentTimeMillis() - startTime;
         getLogger().info("Kyouyuu successfully enabled in " + elapsed + "ms!");
     }
@@ -128,6 +141,10 @@ public class KyouyuuPlugin extends JavaPlugin {
         }
         if (sessionPruneTask != null) {
             sessionPruneTask.cancel();
+        }
+
+        if (chunkKeepAliveService != null) {
+            chunkKeepAliveService.removeAllTickets();
         }
 
         if (inventoryManager != null) {
@@ -151,6 +168,9 @@ public class KyouyuuPlugin extends JavaPlugin {
     public void reloadPlugin() {
         reloadConfig();
         pluginConfig.load(getConfig());
+        if (chunkKeepAliveService != null) {
+            chunkKeepAliveService.syncAllTickets();
+        }
         getLogger().info("Configuration reloaded.");
     }
 
@@ -166,6 +186,10 @@ public class KyouyuuPlugin extends JavaPlugin {
         return inventoryManager;
     }
 
+
+    public ChunkKeepAliveService getChunkKeepAliveService() {
+        return chunkKeepAliveService;
+    }
     public AuthorizationService getAuthorizationService() {
         return authorizationService;
     }

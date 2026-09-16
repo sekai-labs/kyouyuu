@@ -19,6 +19,8 @@ linking:
   session-timeout-seconds: 30
 hopper:
   enabled: true
+chunk-loading:
+  enabled: true
 messages:
   prefix: "<aqua>[Kyouyuu]</aqua> "
   no-permission: "<red>You do not have permission to do that.</red>"

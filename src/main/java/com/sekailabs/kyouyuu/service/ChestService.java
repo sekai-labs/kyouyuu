@@ -23,10 +23,17 @@ public class ChestService {
 
     private final ChestRepository chestRepository;
     private final Logger logger;
+    private java.util.function.Consumer<LinkedChest> onChestLinked;
+    private java.util.function.Consumer<ChestLocation> onChestUnlinked;
 
     public ChestService(ChestRepository chestRepository, Logger logger) {
         this.chestRepository = chestRepository;
         this.logger = logger != null ? logger : Logger.getLogger(ChestService.class.getName());
+    }
+
+    public void setLinkListeners(java.util.function.Consumer<LinkedChest> onLinked, java.util.function.Consumer<ChestLocation> onUnlinked) {
+        this.onChestLinked = onLinked;
+        this.onChestUnlinked = onUnlinked;
     }
 
     public boolean isLinkableContainer(Block block) {
@@ -93,6 +100,13 @@ public class ChestService {
             try {
                 chestRepository.link(lc);
                 linkedChests.add(lc);
+                if (onChestLinked != null) {
+                    try {
+                        onChestLinked.accept(lc);
+                    } catch (Throwable t) {
+                        logger.log(Level.WARNING, "Error in onChestLinked listener", t);
+                    }
+                }
             } catch (SQLException e) {
                 logger.log(Level.SEVERE, "Failed to link chest at: " + loc, e);
                 return ChannelService.ServiceResult.fail("Database error while linking chest: " + e.getMessage());
@@ -112,6 +126,13 @@ public class ChestService {
                 if (chestRepository.unlink(loc.worldName(), loc.x(), loc.y(), loc.z())) {
                     unlinkedCount++;
                 }
+                    if (onChestUnlinked != null) {
+                        try {
+                            onChestUnlinked.accept(loc);
+                        } catch (Throwable t) {
+                            logger.log(Level.WARNING, "Error in onChestUnlinked listener", t);
+                        }
+                    }
             } catch (SQLException e) {
                 logger.log(Level.SEVERE, "Database error unlinking chest at: " + loc, e);
             }
@@ -126,7 +147,15 @@ public class ChestService {
 
     public boolean unlinkLocation(String worldName, int x, int y, int z) {
         try {
-            return chestRepository.unlink(worldName, x, y, z);
+            boolean removed = chestRepository.unlink(worldName, x, y, z);
+            if (removed && onChestUnlinked != null) {
+                try {
+                    onChestUnlinked.accept(new ChestLocation(worldName, x, y, z));
+                } catch (Throwable t) {
+                    logger.log(Level.WARNING, "Error in onChestUnlinked listener", t);
+                }
+            }
+            return removed;
         } catch (SQLException e) {
             logger.log(Level.SEVERE, "Database error unlinking location: " + worldName + "[" + x + "," + y + "," + z + "]", e);
             return false;
@@ -153,6 +182,15 @@ public class ChestService {
         try {
             return chestRepository.findByChannel(channelId);
         } catch (SQLException e) {
+            return List.of();
+        }
+    }
+
+    public List<LinkedChest> getAllLinkedChests() {
+        try {
+            return chestRepository.findAll();
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "Database error retrieving all linked chests", e);
             return List.of();
         }
     }

@@ -16,6 +16,7 @@ public class PluginConfig {
     private int linkSessionTimeoutSeconds;
     private com.sekailabs.kyouyuu.storage.DatabaseCredentials databaseCredentials;
     private boolean hopperAutomationEnabled = false;
+    private boolean chunkLoadingEnabled = true;
     private final Map<String, String> messages = new HashMap<>();
 
     public void load(FileConfiguration config) {
@@ -23,6 +24,7 @@ public class PluginConfig {
         this.autosaveIntervalSeconds = config.getInt("storage.autosave-interval-seconds", 30);
         this.linkSessionTimeoutSeconds = config.getInt("linking.session-timeout-seconds", 30);
         this.hopperAutomationEnabled = config.getBoolean("hopper.enabled", true);
+        this.chunkLoadingEnabled = config.getBoolean("chunk-loading.enabled", true);
 
         String dbTypeStr = config.getString("storage.type", "SQLITE");
         com.sekailabs.kyouyuu.storage.DatabaseType dbType = com.sekailabs.kyouyuu.storage.DatabaseType.fromString(dbTypeStr);
@@ -84,5 +86,9 @@ public class PluginConfig {
 
     public boolean isHopperAutomationEnabled() {
         return hopperAutomationEnabled;
+    }
+
+    public boolean isChunkLoadingEnabled() {
+        return chunkLoadingEnabled;
     }
 }
