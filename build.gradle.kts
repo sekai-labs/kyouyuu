@@ -1,7 +1,7 @@
 plugins {
     `java-library`
     jacoco
-    id("com.modrinth.minotaur") version "2.8.10"
+    id("com.modrinth.minotaur") version "2.9.0"
 }
 
 group = "com.sekailabs.kyouyuu"
